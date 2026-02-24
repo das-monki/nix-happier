@@ -28,12 +28,12 @@
 
       imports = [
         inputs.devshell.flakeModule
-        ./modules/devshell.nix
-        ./modules/packages.nix
+        ./devshell.nix
+        ./packages.nix
       ];
 
       flake = {
-        nixosModules.happier-server = ./modules/happier-server.nix;
+        nixosModules.happier-server = ./modules/nixos/happier-server.nix;
         nixosModules.default = self.nixosModules.happier-server;
       };
 
