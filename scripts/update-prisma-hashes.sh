@@ -1,20 +1,20 @@
 #!/usr/bin/env bash
 # Update prebuilt Prisma engine binary hashes after bumping @prisma/client.
 #
-# Usage: ./nix/scripts/update-prisma-hashes.sh [path/to/happier/yarn.lock]
+# Usage: ./scripts/update-prisma-hashes.sh [path/to/happier/yarn.lock]
 #
 # If no yarn.lock path is given, the script looks for ../happier/yarn.lock
 # (assumes the happier monorepo is a sibling directory).
 #
 # This reads the engine commit hash from yarn.lock and prefetches
 # binaries for all supported platforms, then updates the hashes
-# in nix/packages/prisma-engines-prebuilt.nix.
+# in packages/prisma-engines-prebuilt.nix.
 
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-REPO_ROOT="$(dirname "$(dirname "$SCRIPT_DIR")")"
-NIX_FILE="$SCRIPT_DIR/../packages/prisma-engines-prebuilt.nix"
+REPO_ROOT="$(dirname "$SCRIPT_DIR")"
+NIX_FILE="$REPO_ROOT/packages/prisma-engines-prebuilt.nix"
 
 YARN_LOCK="${1:-}"
 if [ -z "$YARN_LOCK" ]; then

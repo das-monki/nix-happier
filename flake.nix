@@ -28,12 +28,12 @@
 
       imports = [
         inputs.devshell.flakeModule
-        ./nix/modules/devshell.nix
-        ./nix/modules/packages.nix
+        ./modules/devshell.nix
+        ./modules/packages.nix
       ];
 
       flake = {
-        nixosModules.happier-server = ./nix/modules/happier-server.nix;
+        nixosModules.happier-server = ./modules/happier-server.nix;
         nixosModules.default = self.nixosModules.happier-server;
       };
 
@@ -51,9 +51,9 @@
             inherit system;
             overlays = [
               # Prebuilt Prisma engines — version auto-derived from yarn.lock.
-              # When @prisma/client is bumped, run: ./nix/scripts/update-prisma-hashes.sh
+              # When @prisma/client is bumped, run: ./scripts/update-prisma-hashes.sh
               (final: prev: {
-                prisma-engines = import ./nix/packages/prisma-engines-prebuilt.nix {
+                prisma-engines = import ./packages/prisma-engines-prebuilt.nix {
                   pkgs = final;
                   lib = final.lib;
                   yarnLock = "${inputs.happier}/yarn.lock";
