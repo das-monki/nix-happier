@@ -5,7 +5,7 @@
 #
 # When @prisma/client is bumped and yarn.lock changes:
 #   1. nix build will fail with a hash mismatch (the engine hash changed → new URL)
-#   2. Run: ./nix/scripts/update-prisma-hashes.sh
+#   2. Run: ./scripts/update-prisma-hashes.sh
 #   3. Commit the updated hashes
 {
   pkgs,
@@ -28,7 +28,7 @@ let
   baseUrl = "https://binaries.prisma.sh/all_commits/${engineHash}";
 
   # Platform-specific binary config
-  # Update these hashes after bumping Prisma: ./nix/update-prisma-hashes.sh
+  # Update these hashes after bumping Prisma: ./scripts/update-prisma-hashes.sh
   platformConfig = {
     "aarch64-linux" = {
       platform = "linux-arm64-openssl-3.0.x";
@@ -75,11 +75,13 @@ pkgs.stdenv.mkDerivation {
 
   nativeBuildInputs = [
     pkgs.gzip
+  ] ++ lib.optionals pkgs.stdenv.hostPlatform.isLinux [
     pkgs.autoPatchelfHook
   ];
 
-  # Runtime libraries needed by the prebuilt binaries
-  buildInputs = [
+  # Runtime libraries needed by the prebuilt Linux binaries.
+  # On darwin the Mach-O binaries are self-contained.
+  buildInputs = lib.optionals pkgs.stdenv.hostPlatform.isLinux [
     pkgs.openssl
     pkgs.stdenv.cc.cc.lib # libstdc++/libgcc
     pkgs.zlib
