@@ -75,7 +75,8 @@ pkgs.stdenv.mkDerivation {
 
   nativeBuildInputs = [
     pkgs.gzip
-  ] ++ lib.optionals pkgs.stdenv.hostPlatform.isLinux [
+  ]
+  ++ lib.optionals pkgs.stdenv.hostPlatform.isLinux [
     pkgs.autoPatchelfHook
   ];
 
