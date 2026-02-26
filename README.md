@@ -20,9 +20,19 @@ Nix flake for building and deploying [Happier](https://github.com/happier-dev/ha
 
 Supported systems: `aarch64-darwin`, `aarch64-linux`, `x86_64-linux`
 
+## Secrets
+
+All deployment modes require an **environment file** containing secrets. At minimum:
+
+```sh
+HANDY_MASTER_SECRET=<your-secret>
+```
+
+Pass it to the module via `environmentFile`. Use [agenix](https://github.com/ryantm/agenix), [sops-nix](https://github.com/Mic92/sops-nix), or a plain file with restricted permissions — whatever fits your secrets workflow.
+
 ## Quick start
 
-Add the flake input to your NixOS configuration:
+Add the flake input and import the NixOS module:
 
 ```nix
 {
@@ -40,7 +50,8 @@ Add the flake input to your NixOS configuration:
           services.happier-server = {
             enable = true;
             package = nix-happier.packages.x86_64-linux.happier-server;
-            mode = "light"; # or "full"
+            mode = "light";
+            environmentFile = "/run/secrets/happier-env";
           };
         }
       ];
@@ -49,9 +60,18 @@ Add the flake input to your NixOS configuration:
 }
 ```
 
-### Light mode (SQLite, no external deps)
+### Recommended: Tailscale + nginx TLS
 
-See [`examples/happier-server-light.nix`](examples/happier-server-light.nix) for a minimal configuration. Light mode uses SQLite with WAL enabled automatically — no PostgreSQL, Redis, or MinIO required.
+The most common setup serves Happier over your Tailscale network with TLS termination via nginx. See [`examples/happier-server-tailscale.nix`](examples/happier-server-tailscale.nix) for a complete configuration that includes:
+
+- Happier Server in light mode on `localhost:3005`
+- Tailscale for private networking
+- Auto-renewed TLS certs via `tailscale cert`
+- nginx reverse proxy listening only on the Tailscale interface
+
+### Light mode (minimal)
+
+See [`examples/happier-server-light.nix`](examples/happier-server-light.nix) for the bare minimum. This is what the CI integration test uses — it omits `environmentFile` and networking, so it's useful as a starting point but not production-ready on its own.
 
 ### Full mode (PostgreSQL + Redis + MinIO)
 
@@ -62,7 +82,7 @@ See [`examples/happier-server-light.nix`](examples/happier-server-light.nix) for
     package = nix-happier.packages.x86_64-linux.happier-server;
     mode = "full";
     port = 3005;
-    environmentFile = "/run/secrets/happier-env"; # must contain HANDY_MASTER_SECRET
+    environmentFile = "/run/secrets/happier-env";
 
     database = {
       name = "happier";
@@ -91,7 +111,7 @@ See [`examples/happier-server-light.nix`](examples/happier-server-light.nix) for
 | `package` | package | — | The `happier-server` package to use |
 | `port` | port | `3005` | Port to listen on |
 | `mode` | `"full"` \| `"light"` | `"full"` | `full` = PostgreSQL + Redis + MinIO; `light` = SQLite only |
-| `environmentFile` | path \| null | `null` | Secrets file (`KEY=value`). Should contain `HANDY_MASTER_SECRET` |
+| `environmentFile` | path \| null | `null` | **Required for production.** Secrets file (`KEY=value`) — must contain `HANDY_MASTER_SECRET` |
 
 ### Database (full mode)
 
@@ -117,7 +137,12 @@ See [`examples/happier-server-light.nix`](examples/happier-server-light.nix) for
 
 ## Examples
 
-The [`examples/`](examples/) directory contains ready-to-use NixOS configurations. These examples are tested in CI via `nix flake check` (the light-mode example runs as a NixOS VM integration test on Linux).
+The [`examples/`](examples/) directory contains NixOS configurations:
+
+| Example | Description |
+|---------|-------------|
+| [`happier-server-tailscale.nix`](examples/happier-server-tailscale.nix) | Recommended production setup — light mode + Tailscale + nginx TLS |
+| [`happier-server-light.nix`](examples/happier-server-light.nix) | Bare minimum for CI — tested via `nix flake check` VM integration test |
 
 ## Development
 
@@ -161,7 +186,8 @@ nix run .#update
 ├── packages/
 │   └── prisma-engines-prebuilt.nix    # Prebuilt Prisma engine binaries
 ├── examples/
-│   └── happier-server-light.nix       # Light mode example config
+│   ├── happier-server-tailscale.nix   # Production setup with Tailscale + TLS
+│   └── happier-server-light.nix       # Minimal config (used by CI)
 └── .github/
     └── workflows/
         └── nix-build.yml              # CI workflow

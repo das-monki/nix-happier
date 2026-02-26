@@ -1,7 +1,10 @@
-# Example: Happier Server in light mode (SQLite, no external dependencies)
+# Minimal Happier Server config — light mode (SQLite, no external dependencies).
 #
-# Minimal configuration — the consumer must set services.happier-server.package.
-# In production, also set environmentFile for secrets (HANDY_MASTER_SECRET).
+# Used by the CI integration test (nix flake check). The consumer must set
+# services.happier-server.package externally.
+#
+# For a production-ready setup with TLS and Tailscale, see:
+#   examples/happier-server-tailscale.nix
 {
   services.happier-server = {
     enable = true;

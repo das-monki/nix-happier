@@ -15,7 +15,8 @@ checks.nix                       # deadnix, statix, NixOS VM integration test
 devshell.nix                     # Dev shell (fmt, update commands)
 modules/nixos/happier-server.nix # NixOS service module
 packages/prisma-engines-prebuilt.nix # Prebuilt Prisma engine binaries
-examples/happier-server-light.nix    # Light mode example (used by VM test)
+examples/happier-server-tailscale.nix # Recommended production setup (Tailscale + TLS)
+examples/happier-server-light.nix    # Minimal config (used by CI VM test)
 ```
 
 ## Language and tooling
@@ -47,6 +48,8 @@ The flake uses [flake-parts](https://github.com/hercules-ci/flake-parts). Per-sy
 - **light**: SQLite-only, no external deps
 
 The module provisions supporting services (PostgreSQL, Redis, MinIO) when `createLocally = true` and handles migrations, WAL mode, and secret loading via `systemd` `LoadCredential`.
+
+Both modes require an `environmentFile` containing `HANDY_MASTER_SECRET` for production use. The only exception is the CI VM test, which omits it.
 
 ### Package builds
 
