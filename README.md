@@ -60,14 +60,13 @@ Add the flake input and import the NixOS module:
 }
 ```
 
-### Recommended: Tailscale + nginx TLS
+### Recommended: Tailscale + Caddy
 
-The most common setup serves Happier over your Tailscale network with TLS termination via nginx. See [`examples/happier-server-tailscale.nix`](examples/happier-server-tailscale.nix) for a complete configuration that includes:
+The most common setup serves Happier over your Tailscale network with automatic TLS via Caddy. See [`examples/happier-server-tailscale.nix`](examples/happier-server-tailscale.nix) for a complete configuration that includes:
 
 - Happier Server in light mode on `localhost:3005`
 - Tailscale for private networking
-- Auto-renewed TLS certs via `tailscale cert`
-- nginx reverse proxy listening only on the Tailscale interface
+- Caddy reverse proxy with automatic TLS cert provisioning
 
 ### Light mode (minimal)
 
@@ -141,7 +140,7 @@ The [`examples/`](examples/) directory contains NixOS configurations:
 
 | Example | Description |
 |---------|-------------|
-| [`happier-server-tailscale.nix`](examples/happier-server-tailscale.nix) | Recommended production setup — light mode + Tailscale + nginx TLS |
+| [`happier-server-tailscale.nix`](examples/happier-server-tailscale.nix) | Recommended production setup — light mode + Tailscale + Caddy TLS |
 | [`happier-server-light.nix`](examples/happier-server-light.nix) | Bare minimum for CI — tested via `nix flake check` VM integration test |
 
 ## Development
@@ -186,7 +185,7 @@ nix run .#update
 ├── packages/
 │   └── prisma-engines-prebuilt.nix    # Prebuilt Prisma engine binaries
 ├── examples/
-│   ├── happier-server-tailscale.nix   # Production setup with Tailscale + TLS
+│   ├── happier-server-tailscale.nix   # Production setup with Tailscale + Caddy
 │   └── happier-server-light.nix       # Minimal config (used by CI)
 └── .github/
     └── workflows/

@@ -15,7 +15,7 @@ checks.nix                       # deadnix, statix, NixOS VM integration test
 devshell.nix                     # Dev shell (fmt, update commands)
 modules/nixos/happier-server.nix # NixOS service module
 packages/prisma-engines-prebuilt.nix # Prebuilt Prisma engine binaries
-examples/happier-server-tailscale.nix # Recommended production setup (Tailscale + TLS)
+examples/happier-server-tailscale.nix # Recommended production setup (Tailscale + Caddy)
 examples/happier-server-light.nix    # Minimal config (used by CI VM test)
 ```
 
