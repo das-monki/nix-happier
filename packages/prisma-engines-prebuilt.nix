@@ -34,22 +34,22 @@ let
       platform = "linux-arm64-openssl-3.0.x";
       queryEngineFile = "libquery_engine.so.node.gz";
       schemaEngineFile = "schema-engine.gz";
-      queryEngineHash = "1bkp5a5m8jmq2l3slc4lfaaji1z54zc7rg65rv9jyh6pz94mqv7l";
-      schemaEngineHash = "09pxr9djichrpi9dxmr4q02l7qayl0cbx274zak66vda97g546rg";
+      queryEngineHash = "sha256-9GxcSfrXQC/TzsW8fNgn5YcolXKUMKoHFbhKVIsqd64=";
+      schemaEngineHash = "sha256-LxtS3kmqbWOm+uSIvhigXuFDBcAk195SvBmyKFvK/SY=";
     };
     "aarch64-darwin" = {
       platform = "darwin-arm64";
       queryEngineFile = "libquery_engine.dylib.node.gz";
       schemaEngineFile = "schema-engine.gz";
-      queryEngineHash = "0kl0g4y84qy2krlh4djr1i9cjzkxv9aqmf8m1x5knb31n4fba544";
-      schemaEngineHash = "0wypyw9djpqwizk90f2xlj458p8ywcgah8kqpx2y251jv00bcld9";
+      queryEngineHash = "sha256-hBS1HLFhLDtLDxW5ilXafX7JUgxZNgJpnsJjgjx5gE4=";
+      schemaEngineHash = "sha256-qVG2ANgyFOFFv3giqB7jHl1UiKRdOJDmjxxf2RL313M=";
     };
     "x86_64-linux" = {
       platform = "debian-openssl-3.0.x";
       queryEngineFile = "libquery_engine.so.node.gz";
       schemaEngineFile = "schema-engine.gz";
-      queryEngineHash = "046nqra0rvdiazmnphyxa6yzpjsg1w0dqjdjxg310wx1r0n8g06k";
-      schemaEngineHash = "12ixm3mhrr6advyb800cklybvqa744av68gxi2q8g12k6kzgs7bc";
+      queryEngineHash = "sha256-04CHLMihcxDG67JJ3AAPT8v7vVHdw2vrV7HtDFTG1hA=";
+      schemaEngineHash = "sha256-bB39/jRThIewiP0hsxUhR+G9PJ0MALT8bsrkDOuoPYo=";
     };
   };
 
