@@ -74,6 +74,8 @@ See [`examples/happier-server-light.nix`](examples/happier-server-light.nix) for
 
 ### Full mode (PostgreSQL + Redis + MinIO)
 
+With `createLocally = true` (the default), PostgreSQL, Redis, and MinIO are all provisioned on the same host as single-node instances. This is convenient for small deployments but comes with no built-in replication or backups — **you are responsible for setting up your own backup strategy** (e.g. `pgBackRest`, `restic`, or filesystem snapshots).
+
 ```nix
 {
   services.happier-server = {
