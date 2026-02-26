@@ -1,0 +1,9 @@
+# statix configuration
+# W20 (repeated keys) is suppressed because NixOS modules idiomatically
+# use separate top-level assignments with lib.mkIf guards per service.
+disabled = ["repeated_keys"]
+
+ignore = [
+  ".direnv",
+  "result",
+]

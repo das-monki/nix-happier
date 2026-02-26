@@ -1,0 +1,28 @@
+name: Update flake inputs
+
+on:
+  schedule:
+    - cron: '0 4 * * 0' # Weekly, Sunday 4 AM UTC
+  workflow_dispatch:
+
+jobs:
+  update:
+    name: Update flake.lock
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install Nix
+        uses: DeterminateSystems/nix-installer-action@main
+
+      - name: Update flake.lock
+        uses: DeterminateSystems/update-flake-lock@main
+        with:
+          # Don't update happier — that's handled by update-happier.yml
+          inputs: nixpkgs devshell flake-parts
+          pr-title: 'chore: update flake inputs'
+          pr-labels: dependencies

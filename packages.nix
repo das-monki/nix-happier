@@ -4,7 +4,6 @@
 {
   perSystem =
     {
-      system,
       pkgs,
       lib,
       ...
@@ -16,7 +15,7 @@
       filteredSrc = lib.cleanSourceWith {
         src = happierSrc;
         filter =
-          path: type:
+          path: _type:
           let
             relPath = lib.removePrefix (toString happierSrc + "/") (toString path);
           in

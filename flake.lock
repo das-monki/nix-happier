@@ -41,15 +41,16 @@
     "happier": {
       "flake": false,
       "locked": {
-        "lastModified": 1771832404,
-        "narHash": "sha256-yW1nyW+xe6LsTHCKq38qbhQdCz8Rvg+kkx+0Ovg/NV4=",
+        "lastModified": 1771714854,
+        "narHash": "sha256-E5WruyOZcU+4c5pJokcCu54PaEmg+alcvlrEjADenpg=",
         "owner": "happier-dev",
         "repo": "happier",
-        "rev": "23e20d826d30e3532c7472aecb819f6ca1b56191",
+        "rev": "f8f20c7760a2cacedcdf89f33bf569398b71941b",
         "type": "github"
       },
       "original": {
         "owner": "happier-dev",
+        "ref": "stack-v0.1.0-preview.1771759103.67820",
         "repo": "happier",
         "type": "github"
       }

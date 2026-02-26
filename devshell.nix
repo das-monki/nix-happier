@@ -1,11 +1,9 @@
-{ inputs, ... }:
+_:
 
 {
   perSystem =
     {
-      system,
       pkgs,
-      config,
       ...
     }:
     {

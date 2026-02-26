@@ -22,11 +22,8 @@ jobs:
       - name: Install Nix
         uses: DeterminateSystems/nix-installer-action@main
 
-      - name: Build happier-cli
-        run: nix build .#packages.x86_64-linux.happier-cli
-
-      - name: Build happier-server
-        run: nix build .#packages.x86_64-linux.happier-server
+      - name: Nix flake check
+        run: nix flake check
 
       - name: Check formatting
         run: nix fmt -- --fail-on-change
@@ -42,11 +39,8 @@ jobs:
       - name: Install Nix
         uses: DeterminateSystems/nix-installer-action@main
 
-      - name: Build happier-cli
-        run: nix build .#packages.aarch64-darwin.happier-cli
-
-      - name: Build happier-server
-        run: nix build .#packages.aarch64-darwin.happier-server
+      - name: Nix flake check
+        run: nix flake check
 
   nix-build-aarch64-linux:
     name: Nix Build (aarch64-linux via QEMU)
@@ -67,11 +61,5 @@ jobs:
         with:
           extra-conf: extra-platforms = aarch64-linux
 
-      - name: Build happier-cli
-        run: nix build .#packages.aarch64-linux.happier-cli --system aarch64-linux
-
-      - name: Build happier-server
-        run: nix build .#packages.aarch64-linux.happier-server --system aarch64-linux
-
-      - name: Evaluate NixOS module
-        run: nix eval .#nixosModules.happier-server
+      - name: Nix flake check
+        run: nix flake check --system aarch64-linux
