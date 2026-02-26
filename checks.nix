@@ -33,14 +33,11 @@
           nodes.server =
             { ... }:
             {
-              imports = [ self.nixosModules.happier-server ];
-
-              services.happier-server = {
-                enable = true;
-                package = config.packages.happier-server;
-                mode = "light";
-              };
-
+              imports = [
+                self.nixosModules.happier-server
+                ./examples/happier-server-light.nix
+              ];
+              services.happier-server.package = config.packages.happier-server;
               virtualisation.memorySize = 2048;
             };
 
