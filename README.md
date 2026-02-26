@@ -2,6 +2,8 @@
 
 Nix flake for building and deploying [Happier](https://github.com/happier-dev/happier) Server and CLI.
 
+> **Pre-release notice:** The `happier` flake input currently tracks the `main` branch. This will be pinned to tagged releases once Happier reaches a stable version. Updates to this flake are made manually for now — run `nix run .#update` to pull the latest.
+
 ## Flake outputs
 
 | Output | Description |
