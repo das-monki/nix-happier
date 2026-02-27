@@ -40,10 +40,87 @@
           );
       };
 
+      # Source filter for the web UI: include apps/ui, exclude server/CLI apps
+      uiFilteredSrc = lib.cleanSourceWith {
+        src = happierSrc;
+        filter =
+          path: _type:
+          let
+            relPath = lib.removePrefix (toString happierSrc + "/") (toString path);
+          in
+          !(
+            lib.hasPrefix "apps/server" relPath
+            || lib.hasPrefix "apps/cli" relPath
+            || lib.hasPrefix "apps/stack" relPath
+            || lib.hasPrefix "apps/website" relPath
+            || lib.hasPrefix "apps/docs" relPath
+            || lib.hasPrefix "packages/relay-server" relPath
+            || lib.hasPrefix "packages/tests" relPath
+            || lib.hasPrefix ".git" relPath
+            || relPath == "node_modules"
+            || lib.hasPrefix "node_modules/" relPath
+            || relPath == "dist"
+            || lib.hasPrefix ".pgdata" relPath
+            || lib.hasPrefix ".minio" relPath
+            || lib.hasPrefix ".logs" relPath
+            || lib.hasPrefix "result" relPath
+            || lib.hasPrefix ".project" relPath
+          );
+      };
+
       # Offline yarn cache from the root yarn.lock
       yarnOfflineCache = pkgs.fetchYarnDeps {
         yarnLock = "${happierSrc}/yarn.lock";
         hash = "sha256-5SeMv0NQ0KbfHsSSO9k/jFhYxw77I1sBn0AxxQVpMjc=";
+      };
+
+      # Pre-built web UI bundle (Expo static export)
+      happier-ui-web = pkgs.stdenv.mkDerivation {
+        pname = "happier-ui-web";
+        version = "0.1.0";
+
+        src = uiFilteredSrc;
+
+        nativeBuildInputs = with pkgs; [
+          nodejs_22
+          yarn
+          yarnConfigHook
+        ];
+
+        inherit yarnOfflineCache;
+
+        preConfigure = ''
+          export HAPPIER_INSTALL_SCOPE=ui,protocol,agents
+          export HOME=$(mktemp -d)
+          export APP_ENV=production
+          export EXPO_NO_GIT_STATUS=1
+        '';
+
+        buildPhase = ''
+          runHook preBuild
+
+          # Build shared workspace packages in dependency order
+          node packages/protocol/scripts/generate-embedded-feature-policies.mjs
+          node node_modules/typescript/bin/tsc -p packages/protocol/tsconfig.json
+          node node_modules/typescript/bin/tsc -p packages/agents/tsconfig.json
+
+          # Export static web bundle (invoke via node to bypass shebang issues on linux builders)
+          (cd apps/ui && node node_modules/expo/bin/cli export --platform web --output-dir dist)
+
+          runHook postBuild
+        '';
+
+        installPhase = ''
+          runHook preInstall
+          cp -r apps/ui/dist $out
+          runHook postInstall
+        '';
+
+        meta = {
+          description = "Happier Web UI - static Expo web bundle";
+          homepage = "https://github.com/happier-dev/happier";
+          license = lib.licenses.mit;
+        };
       };
     in
     {
@@ -307,6 +384,7 @@
               --set PRISMA_QUERY_ENGINE_LIBRARY "${pkgs.prisma-engines}/lib/libquery_engine.node" \
               --set PRISMA_SCHEMA_ENGINE_BINARY "${pkgs.prisma-engines}/bin/schema-engine" \
               --set PRISMA_ENGINES_CHECKSUM_IGNORE_MISSING "1" \
+              --set HAPPIER_SERVER_UI_DIR "${happier-ui-web}" \
               --prefix LD_LIBRARY_PATH : "${lib.makeLibraryPath [ pkgs.openssl ]}" \
               --chdir "$out/lib/happier-server/apps/server" \
               --prefix PATH : ${
@@ -325,6 +403,7 @@
               --set PRISMA_QUERY_ENGINE_LIBRARY "${pkgs.prisma-engines}/lib/libquery_engine.node" \
               --set PRISMA_SCHEMA_ENGINE_BINARY "${pkgs.prisma-engines}/bin/schema-engine" \
               --set PRISMA_ENGINES_CHECKSUM_IGNORE_MISSING "1" \
+              --set HAPPIER_SERVER_UI_DIR "${happier-ui-web}" \
               --prefix LD_LIBRARY_PATH : "${lib.makeLibraryPath [ pkgs.openssl ]}" \
               --chdir "$out/lib/happier-server/apps/server" \
               --prefix PATH : ${
@@ -371,6 +450,8 @@
 
             runHook postInstall
           '';
+
+          passthru.web = happier-ui-web;
 
           meta = {
             description = "Happier Server - backend for Happier mobile and CLI clients";
