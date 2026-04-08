@@ -71,7 +71,7 @@
       # Offline yarn cache from the root yarn.lock
       yarnOfflineCache = pkgs.fetchYarnDeps {
         yarnLock = "${happierSrc}/yarn.lock";
-        hash = "sha256-5SeMv0NQ0KbfHsSSO9k/jFhYxw77I1sBn0AxxQVpMjc=";
+        hash = "sha256-p2eG1eRiy/HjWDZ6lNgdzy9xZEo6NGXCFi7Vj1uaBX0=";
       };
 
       # Pre-built web UI bundle (Expo static export)

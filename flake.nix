@@ -11,7 +11,7 @@
 
     # The happier monorepo source (fetched as a plain source tree, not evaluated as a flake)
     happier = {
-      url = "github:happier-dev/happier/preview";
+      url = "github:happier-dev/happier/dev";
       flake = false;
     };
   };
