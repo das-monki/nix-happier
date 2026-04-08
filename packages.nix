@@ -152,13 +152,15 @@
             runHook preBuild
 
             # Build shared workspace packages in dependency order:
-            # protocol (no deps) -> agents (needs protocol) -> cli-common (needs agents) -> release-runtime (no internal deps)
+            # protocol (no deps) -> agents, release-runtime, transfers, connection-supervisor (need protocol at most) -> cli-common (needs agents + release-runtime)
             # Protocol needs its codegen step first
             node packages/protocol/scripts/generate-embedded-feature-policies.mjs
             node node_modules/typescript/bin/tsc -p packages/protocol/tsconfig.json
             node node_modules/typescript/bin/tsc -p packages/agents/tsconfig.json
-            node node_modules/typescript/bin/tsc -p packages/cli-common/tsconfig.json
             node node_modules/typescript/bin/tsc -p packages/release-runtime/tsconfig.json
+            node node_modules/typescript/bin/tsc -p packages/transfers/tsconfig.json
+            node node_modules/typescript/bin/tsc -p packages/connection-supervisor/tsconfig.json
+            node node_modules/typescript/bin/tsc -p packages/cli-common/tsconfig.json
 
             # Sync bundled workspace dist into CLI's node_modules so tsc/pkgroll can resolve them
             node -e "
@@ -184,6 +186,8 @@
             mkdir -p $out/lib/happier-cli/packages/agents
             mkdir -p $out/lib/happier-cli/packages/cli-common
             mkdir -p $out/lib/happier-cli/packages/release-runtime
+            mkdir -p $out/lib/happier-cli/packages/transfers
+            mkdir -p $out/lib/happier-cli/packages/connection-supervisor
 
             # Root node_modules (hoisted dependencies)
             cp -r node_modules $out/lib/happier-cli/
@@ -226,6 +230,20 @@
             cp packages/release-runtime/package.json $out/lib/happier-cli/packages/release-runtime/
             if [ -d packages/release-runtime/node_modules ]; then
               cp -r packages/release-runtime/node_modules $out/lib/happier-cli/packages/release-runtime/
+            fi
+
+            # -- packages/transfers --
+            cp -r packages/transfers/dist $out/lib/happier-cli/packages/transfers/
+            cp packages/transfers/package.json $out/lib/happier-cli/packages/transfers/
+            if [ -d packages/transfers/node_modules ]; then
+              cp -r packages/transfers/node_modules $out/lib/happier-cli/packages/transfers/
+            fi
+
+            # -- packages/connection-supervisor --
+            cp -r packages/connection-supervisor/dist $out/lib/happier-cli/packages/connection-supervisor/
+            cp packages/connection-supervisor/package.json $out/lib/happier-cli/packages/connection-supervisor/
+            if [ -d packages/connection-supervisor/node_modules ]; then
+              cp -r packages/connection-supervisor/node_modules $out/lib/happier-cli/packages/connection-supervisor/
             fi
 
             # Create wrapper scripts
