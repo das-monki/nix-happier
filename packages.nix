@@ -71,7 +71,7 @@
       # Offline yarn cache from the root yarn.lock
       yarnOfflineCache = pkgs.fetchYarnDeps {
         yarnLock = "${happierSrc}/yarn.lock";
-        hash = "sha256-p2eG1eRiy/HjWDZ6lNgdzy9xZEo6NGXCFi7Vj1uaBX0=";
+        hash = "sha256-kph4Y7WtP7lXLWwg3NJu4ifHCCvCQA+sKORSj7v6PFE=";
       };
 
       # Pre-built web UI bundle (Expo static export)
@@ -90,7 +90,7 @@
         inherit yarnOfflineCache;
 
         preConfigure = ''
-          export HAPPIER_INSTALL_SCOPE=ui,protocol,agents
+          export HAPPIER_INSTALL_SCOPE=ui,protocol,agents,connection-supervisor,transfers,release-runtime,cli-common
           export HOME=$(mktemp -d)
           export APP_ENV=production
           export EXPO_NO_GIT_STATUS=1
@@ -103,6 +103,10 @@
           node packages/protocol/scripts/generate-embedded-feature-policies.mjs
           node node_modules/typescript/bin/tsc -p packages/protocol/tsconfig.json
           node node_modules/typescript/bin/tsc -p packages/agents/tsconfig.json
+          node node_modules/typescript/bin/tsc -p packages/release-runtime/tsconfig.json
+          node node_modules/typescript/bin/tsc -p packages/transfers/tsconfig.json
+          node node_modules/typescript/bin/tsc -p packages/connection-supervisor/tsconfig.json
+          node node_modules/typescript/bin/tsc -p packages/cli-common/tsconfig.json
 
           # Export static web bundle (invoke via node to bypass shebang issues on linux builders)
           (cd apps/ui && node node_modules/expo/bin/cli export --platform web --output-dir dist)
@@ -308,7 +312,7 @@
 
           preConfigure = ''
             # Skip CLI postinstall (only need server scope)
-            export HAPPIER_INSTALL_SCOPE=server
+            export HAPPIER_INSTALL_SCOPE=server,cli-common,release-runtime
             export HOME=$(mktemp -d)
 
             # Point Prisma at nixpkgs engines
@@ -321,10 +325,12 @@
             runHook preBuild
 
             # Build shared workspace packages in dependency order:
-            # protocol (no deps) -> agents (needs protocol)
+            # protocol (no deps) -> agents (needs protocol) -> release-runtime, cli-common (needs agents + release-runtime)
             node packages/protocol/scripts/generate-embedded-feature-policies.mjs
             node node_modules/typescript/bin/tsc -p packages/protocol/tsconfig.json
             node node_modules/typescript/bin/tsc -p packages/agents/tsconfig.json
+            node node_modules/typescript/bin/tsc -p packages/release-runtime/tsconfig.json
+            node node_modules/typescript/bin/tsc -p packages/cli-common/tsconfig.json
 
             # Generate Prisma clients for all providers (postgres, mysql, sqlite)
             # generate:providers handles schema:sync internally and generates all three
@@ -346,6 +352,8 @@
             mkdir -p $out/lib/happier-server/apps/server
             mkdir -p $out/lib/happier-server/packages/protocol
             mkdir -p $out/lib/happier-server/packages/agents
+            mkdir -p $out/lib/happier-server/packages/release-runtime
+            mkdir -p $out/lib/happier-server/packages/cli-common
 
             # Root node_modules (hoisted dependencies)
             cp -r node_modules $out/lib/happier-server/
@@ -365,6 +373,20 @@
             cp packages/agents/package.json $out/lib/happier-server/packages/agents/
             if [ -d packages/agents/node_modules ]; then
               cp -r packages/agents/node_modules $out/lib/happier-server/packages/agents/
+            fi
+
+            # -- packages/release-runtime --
+            cp -r packages/release-runtime/dist $out/lib/happier-server/packages/release-runtime/
+            cp packages/release-runtime/package.json $out/lib/happier-server/packages/release-runtime/
+            if [ -d packages/release-runtime/node_modules ]; then
+              cp -r packages/release-runtime/node_modules $out/lib/happier-server/packages/release-runtime/
+            fi
+
+            # -- packages/cli-common --
+            cp -r packages/cli-common/dist $out/lib/happier-server/packages/cli-common/
+            cp packages/cli-common/package.json $out/lib/happier-server/packages/cli-common/
+            if [ -d packages/cli-common/node_modules ]; then
+              cp -r packages/cli-common/node_modules $out/lib/happier-server/packages/cli-common/
             fi
 
             # -- apps/server sources and config --
