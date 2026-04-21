@@ -126,11 +126,24 @@
           license = lib.licenses.mit;
         };
       };
-    in
-    {
-      packages = {
-        # -- happier-cli (CLI) -------------------------------------------------
-        happier-cli = pkgs.stdenv.mkDerivation {
+
+      # Builder function for happier-cli — allows overriding the default server URL.
+      # CLI args (--server-url) still take precedence over these env vars.
+      #
+      # Example — point CLI at a self-hosted server:
+      #
+      #   environment.systemPackages = [
+      #     (nix-happier.packages.${system}.happier-cli.override {
+      #       serverUrl = "https://happier.myhost.com";
+      #       webappUrl = "https://happier.myhost.com";
+      #     })
+      #   ];
+      mkHappierCli =
+        {
+          serverUrl ? null,
+          webappUrl ? null,
+        }:
+        pkgs.stdenv.mkDerivation {
           pname = "happier-cli";
           version = "0.1.0";
 
@@ -257,6 +270,8 @@
               --add-flags "--no-warnings" \
               --add-flags "--no-deprecation" \
               --add-flags "$out/lib/happier-cli/apps/cli/dist/index.mjs" \
+              ${lib.optionalString (serverUrl != null) ''--set HAPPIER_SERVER_URL "${serverUrl}"''} \
+              ${lib.optionalString (webappUrl != null) ''--set HAPPIER_WEBAPP_URL "${webappUrl}"''} \
               --prefix PATH : ${
                 lib.makeBinPath [
                   pkgs.nodejs_22
@@ -269,6 +284,8 @@
               --add-flags "--no-warnings" \
               --add-flags "--no-deprecation" \
               --add-flags "$out/lib/happier-cli/apps/cli/dist/backends/codex/happyMcpStdioBridge.mjs" \
+              ${lib.optionalString (serverUrl != null) ''--set HAPPIER_SERVER_URL "${serverUrl}"''} \
+              ${lib.optionalString (webappUrl != null) ''--set HAPPIER_WEBAPP_URL "${webappUrl}"''} \
               --prefix PATH : ${
                 lib.makeBinPath [
                   pkgs.nodejs_22
@@ -280,6 +297,8 @@
             runHook postInstall
           '';
 
+          passthru.override = mkHappierCli;
+
           meta = {
             description = "Happier CLI - mobile and web client for Claude Code";
             homepage = "https://github.com/happier-dev/happier";
@@ -287,6 +306,13 @@
             mainProgram = "happier";
           };
         };
+    in
+    {
+      packages = {
+        # Default CLI (no server URL override — uses upstream defaults).
+        # Use happier-cli.override to set a default server URL:
+        #   happier-cli.override { serverUrl = "https://happier.myhost.com"; }
+        happier-cli = mkHappierCli { };
 
         # -- happier-server ----------------------------------------------------
         happier-server = pkgs.stdenv.mkDerivation {
