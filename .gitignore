@@ -1,0 +1,7 @@
+# Nix build symlinks
+result
+result-*
+
+# Local secrets / tokens (e.g. HCLOUD_TOKEN for build-happier-remote.sh)
+.env
+.env.*

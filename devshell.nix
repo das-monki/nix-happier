@@ -12,6 +12,8 @@ _:
           packages = [
             pkgs.git
             pkgs.nixfmt-rfc-style
+            pkgs.hcloud # Hetzner Cloud CLI for build-happier-remote.sh
+            pkgs.jq # used by build-happier-remote.sh
           ];
 
           env = [
@@ -34,6 +36,13 @@ _:
               help = "Update all flake inputs and refresh Prisma engine hashes";
               command = ''
                 nix run .#update
+              '';
+            }
+            {
+              name = "build-remote";
+              help = "Build happier packages on a temporary big aarch64 Hetzner box";
+              command = ''
+                exec ./scripts/build-happier-remote.sh "$@"
               '';
             }
           ];
