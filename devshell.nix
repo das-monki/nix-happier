@@ -13,6 +13,7 @@ _:
             pkgs.git
             pkgs.nixfmt-rfc-style
             pkgs.hcloud # Hetzner Cloud CLI for build-happier-remote.sh
+            pkgs.awscli2 # AWS CLI for build-happier-remote.sh --provider aws
             pkgs.jq # used by build-happier-remote.sh
           ];
 
