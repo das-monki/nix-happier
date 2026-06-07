@@ -23,9 +23,11 @@
 #
 # Environment overrides:
 #   HCLOUD_TOKEN      Hetzner API token (or a configured `hcloud context`).
-#   SERVER_TYPE       Hetzner server type (default: cax41 — 16 vCPU / 32G / 320G).
+#   SERVER_TYPE       Hetzner server type (default: cax31 — 8 vCPU / 16G / 160G;
+#                     cax41 is often out of stock, and the build is disk-bound,
+#                     not CPU-bound, so 160G is plenty).
 #   LOCATION          Hetzner location (default: fsn1).
-#   BUILD_CORES       Cores passed to nix build (default: 16).
+#   BUILD_CORES       Cores passed to nix build (default: 8, matching cax31).
 #   SSH_KEY           Local private key (default: ~/.ssh/id_ed25519).
 #   SSH_KEY_NAME      Name of the public key registered in Hetzner (default: sion@tailscale).
 #
@@ -50,9 +52,9 @@ if [ -f "$REPO_DIR/.env" ]; then
 fi
 
 SERVER_NAME="build-happier"
-SERVER_TYPE="${SERVER_TYPE:-cax41}"
+SERVER_TYPE="${SERVER_TYPE:-cax31}"
 LOCATION="${LOCATION:-fsn1}"
-BUILD_CORES="${BUILD_CORES:-16}"
+BUILD_CORES="${BUILD_CORES:-8}"
 SSH_KEY="${SSH_KEY:-$HOME/.ssh/id_ed25519}"
 SSH_KEY_NAME="${SSH_KEY_NAME:-sion@tailscale}"
 BUILD_SYSTEM="aarch64-linux"
